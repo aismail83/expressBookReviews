@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const session = require('express-session')
 const customer_routes = require('./router/auth_users.js').authenticated;
 const genl_routes = require('./router/general.js').general;
+const auth_routes = require('./router/auth_users.js').authenticated;
 
 const app = express();
 
@@ -32,5 +33,7 @@ const PORT =5000;
 
 app.use("/customer", customer_routes);
 app.use("/", genl_routes);
+app.use("/", auth_routes);
+
 
 app.listen(PORT,()=>console.log("Server is running"));
