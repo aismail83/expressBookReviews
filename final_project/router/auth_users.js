@@ -8,7 +8,7 @@ let users = [];
 
 regd_users.use(express.json());
 
-regd_users.use(session({secret:"fingerpint"}))
+regd_users.use(session({secret:"fingerpint"},resave=true,saveUninitialized=true));
 
 const isValid = (username)=>{ //returns boolean
 //write code to check is the username is valid
@@ -43,7 +43,7 @@ regd_users.post("/login", (req,res) => {
 
     req.session.authorization = {
       accessToken,username
-  }
+  };
   return res.status(200).send("User successfully logged in");
   } else {
     return res.status(208).json({message: "Invalid Login. Check username and password"});
@@ -54,12 +54,12 @@ regd_users.post("/login", (req,res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   //Write your code here
-  let username = req.session.authorization[username];
-  let reviews = req.body.reviews;
+  
+  let reviews = req.params.reviews;
   let isbn  = req.params.isbn;
-  if (username){
-   let bookput = books[isbn]["reviews"];
-   bookput.push(username:reviews);
+  if (req.session.authorization){
+    let username = req.session.authorization['username'];
+   Object.defineProperty(books[isbn]["reviews"], username ,{value:reviews});
      return res.status(200).send("book review successfully added ");
   }else{
     return res.status(200).send("book review cannnot  added ");
@@ -68,21 +68,19 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 });
 regd_users.delete("/auth/review/:isbn", (req, res) => {
     //Write your code here
-    let username = req.session.authorization[username];
     let isbn  = req.params.isbn;
     
     const bookReviews = Object.values(books).filter(  (book)=> book === book["isbn"]);
-    if (bookReviews["reviews"].includes(username)){
-    let bookReview = bookReviews["reviews"].filter(book => {
-        return  book != username});
+    if (req.session.authorization){
+        let username = req.session.authorization["username"];
+        delete books[isbn]["reviews"][username];
 
-        books["isbn"]["review"]= bookReview;
-
-       return res.status(200).send("book review successfully added ");
+       return res.status(200).send("book review successfully delete ");
     }else{
-      return res.status(403).json({message: "User not authenticated"})
+      return res.status(403).json({message: "book review cannot delete"})
   }
   });
+  
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
