@@ -58,12 +58,13 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   let addReviews = req.query.reviews;
   let isbn  = req.params.isbn;
   if (req.session.authorization){
-    let username = req.session.authorization['username'];
-   let book = books[isbn];
-   Object.defineProperty(book["reviews"], username ,{value:addReviews});
-     return res.status(200).send("book review successfully added ");
+        let username = req.session.authorization['username'];
+        let book = books[isbn];
+        Object.defineProperty(book["reviews"], username ,{value:addReviews});
+        books[isbn]["reviews"]= book["reviews"];
+        return res.status(200).send("book review successfully added ");
   }else{
-    return res.status(200).send("book review cannnot  added ");
+        return res.status(200).send("book review cannnot  added ");
   }
 
 });
@@ -74,11 +75,12 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
     const bookReviews = Object.values(books).filter(  (book)=> book === book["isbn"]);
     if (req.session.authorization){
         let username = req.session.authorization["username"];
-        object.keys(bookReviews["reviews"]||{});
-        delete bookReviews["reviews"][username];
-
-       return res.status(200).send("book review successfully delete ");
-    }else{
+        let book = books[isbn];
+        let bookReviews = book["reviews"];
+        delete bookReviews[username];
+        books[isbn]["reviews"] = bookReviews;
+        return res.status(200).send("book review successfully delete ");
+        }else{
       return res.status(403).json({message: "book review cannot delete"})
   }
   });
