@@ -55,11 +55,12 @@ regd_users.post("/login", (req,res) => {
 regd_users.put("/auth/review/:isbn", (req, res) => {
   //Write your code here
   
-  let reviews = req.params.reviews;
+  let addReviews = req.query.reviews;
   let isbn  = req.params.isbn;
   if (req.session.authorization){
     let username = req.session.authorization['username'];
-   Object.defineProperty(books[isbn]["reviews"], username ,{value:reviews});
+   let book = books[isbn];
+   Object.defineProperty(book["reviews"], username ,{value:addReviews});
      return res.status(200).send("book review successfully added ");
   }else{
     return res.status(200).send("book review cannnot  added ");
@@ -73,7 +74,8 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
     const bookReviews = Object.values(books).filter(  (book)=> book === book["isbn"]);
     if (req.session.authorization){
         let username = req.session.authorization["username"];
-        delete books[isbn]["reviews"][username];
+        object.keys(bookReviews["reviews"]||{});
+        delete bookReviews["reviews"][username];
 
        return res.status(200).send("book review successfully delete ");
     }else{
